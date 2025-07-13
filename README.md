@@ -1,39 +1,46 @@
-📊 Credit Scoring Model using Machine Learning
-This project builds a machine learning model to predict whether a customer is likely to default on a loan or repay it on time. It uses historical credit data and multiple ML algorithms for classification.
+# 💳 Credit Scoring Model using Machine Learning
 
-✅ Key Features:
-End-to-end credit scoring pipeline
+This project aims to build an intelligent credit scoring system that predicts whether a customer is likely to **repay** a loan or **default**, using historical financial data and machine learning algorithms.
 
-Data preprocessing: cleaning, encoding, and scaling
+---
 
-Model training using Logistic Regression, Random Forest, and XGBoost
+## 📌 Overview
 
-Performance evaluation: Accuracy, Precision, Recall, F1 Score
+Credit scoring helps financial institutions assess the **risk level** of potential borrowers. By training on previous loan applications, this model can identify patterns that differentiate between reliable and risky customers.
 
-Feature importance and model explainability (SHAP or LIME)
+---
 
-Interactive web app using Streamlit to test the model with new inputs
+## ✅ Features
 
-🖥️ Streamlit App:
-The project includes a simple Streamlit dashboard where users can:
+- 📂 Data Preprocessing: Missing value handling, encoding, scaling
+- 🤖 Model Training: Logistic Regression, Random Forest, XGBoost
+- 📈 Evaluation Metrics: Accuracy, Precision, Recall, F1-score
+- 🧠 Model Explainability: SHAP (optional)
+- 🌐 **Streamlit Web App**: Interactive interface to test new credit applications
 
-Input customer details (age, income, employment status, etc.)
+---
 
-Instantly see creditworthiness predictions
+## 🧪 Dataset
 
-View model confidence level and explanations
+The dataset includes customer information such as:
 
-📁 Dataset:
-Trained on a dataset containing customer financial and demographic information such as income, loan amount, credit history, and employment.
+- Age
+- Gender
+- Marital status
+- Income
+- Employment type
+- Credit history
+- Loan amount
+- Previous defaults
 
-⚙️ Tech Stack:
-Python
+> Note: This project uses a sample dataset. You can replace it with your own data.
 
-Scikit-learn, XGBoost
+---
 
-Pandas, NumPy, Matplotlib, Seaborn
+## 🖥️ Streamlit App
 
-Streamlit for building the web application
+An interactive dashboard built with **Streamlit** where you can:
 
-SHAP for interpretability
-
+- Enter new customer data
+- Predict credit risk instantly
+- View prediction confidence
