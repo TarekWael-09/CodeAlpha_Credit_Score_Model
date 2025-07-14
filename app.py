@@ -4,7 +4,6 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder, StandardScaler
-from sklearn.metrics import accuracy_score
 import plotly.express as px
 import plotly.graph_objects as go
 
@@ -151,11 +150,8 @@ def train_model(df, target_column=None):
     model = RandomForestClassifier(n_estimators=100, random_state=42)
     model.fit(X_train, y_train)
     
-    # Calculate accuracy
-    y_pred = model.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
-    
-    return model, encoders, scaler, X.columns, accuracy, detected_target
+    # Return model without accuracy calculation
+    return model, encoders, scaler, X.columns, detected_target
 
 # Auto-load and train model on app start
 if st.session_state.model is None:
@@ -163,7 +159,7 @@ if st.session_state.model is None:
         try:
             # Load sample data and train model
             df = create_sample_data()
-            model, encoders, scaler, feature_names, accuracy, target_col = train_model(df)
+            model, encoders, scaler, feature_names, target_col = train_model(df)
             
             # Store in session state
             st.session_state.model = model
@@ -172,7 +168,7 @@ if st.session_state.model is None:
             st.session_state.feature_names = feature_names
             st.session_state.target_column = target_col
             
-            st.success(f"✅ Model ready! Accuracy: {accuracy:.2f}")
+            st.success("✅ Model ready!")
             
         except Exception as e:
             st.error(f"❌ Error loading model: {str(e)}")
@@ -188,7 +184,7 @@ with st.expander("📁 Upload Your Own Data (Optional)"):
         if st.button("🔄 Retrain Model with Your Data"):
             with st.spinner("Retraining model with your data..."):
                 try:
-                    model, encoders, scaler, feature_names, accuracy, target_col = train_model(df)
+                    model, encoders, scaler, feature_names, target_col = train_model(df)
                     
                     # Update session state
                     st.session_state.model = model
@@ -197,7 +193,7 @@ with st.expander("📁 Upload Your Own Data (Optional)"):
                     st.session_state.feature_names = feature_names
                     st.session_state.target_column = target_col
                     
-                    st.success(f"✅ Model retrained! New accuracy: {accuracy:.2f}")
+                    st.success("✅ Model retrained successfully!")
                     
                 except Exception as e:
                     st.error(f"❌ Error retraining model: {str(e)}")
@@ -210,142 +206,172 @@ if st.session_state.model is not None:
     
     with col1:
         st.subheader("Personal Information")
-        age = st.number_input("Age", min_value=18, max_value=100, value=30)
-        occupation = st.selectbox("Occupation", ["Engineer", "Scientist", "Teacher", "Doctor", "Manager"])
-        annual_income = st.number_input("Annual Income ($)", min_value=0, value=50000, step=1000)
-        monthly_salary = st.number_input("Monthly Salary ($)", min_value=0, value=4000, step=100)
+        age = st.number_input("Age", min_value=18, max_value=100, value=None, placeholder="Enter your age")
+        occupation = st.selectbox("Occupation", ["Select...", "Engineer", "Scientist", "Teacher", "Doctor", "Manager"], index=0)
+        annual_income = st.number_input("Annual Income ($)", min_value=0, value=None, step=1000, placeholder="Enter annual income")
+        monthly_salary = st.number_input("Monthly Salary ($)", min_value=0, value=None, step=100, placeholder="Enter monthly salary")
         
         st.subheader("Banking Information")
-        num_bank_accounts = st.number_input("Number of Bank Accounts", min_value=0, value=2)
-        num_credit_cards = st.number_input("Number of Credit Cards", min_value=0, value=3)
-        monthly_balance = st.number_input("Monthly Balance ($)", value=5000, step=100)
+        num_bank_accounts = st.number_input("Number of Bank Accounts", min_value=0, value=None, placeholder="Enter number of accounts")
+        num_credit_cards = st.number_input("Number of Credit Cards", min_value=0, value=None, placeholder="Enter number of cards")
+        monthly_balance = st.number_input("Monthly Balance ($)", value=None, step=100, placeholder="Enter monthly balance")
         
         st.subheader("Credit Information")
-        interest_rate = st.number_input("Interest Rate (%)", min_value=0, value=15)
-        num_loans = st.number_input("Number of Loans", min_value=0, value=1)
-        credit_mix = st.selectbox("Credit Mix", ["Good", "Standard", "Poor"])
+        interest_rate = st.number_input("Interest Rate (%)", min_value=0, value=None, placeholder="Enter interest rate")
+        num_loans = st.number_input("Number of Loans", min_value=0, value=None, placeholder="Enter number of loans")
+        credit_mix = st.selectbox("Credit Mix", ["Select...", "Good", "Standard", "Poor"], index=0)
         
     with col2:
         st.subheader("Financial Behavior")
-        outstanding_debt = st.number_input("Outstanding Debt ($)", min_value=0, value=10000, step=500)
-        credit_utilization = st.number_input("Credit Utilization Ratio (%)", min_value=0, value=25)
-        payment_min_amount = st.selectbox("Payment of Min Amount", ["Yes", "No"])
+        outstanding_debt = st.number_input("Outstanding Debt ($)", min_value=0, value=None, step=500, placeholder="Enter outstanding debt")
+        credit_utilization = st.number_input("Credit Utilization Ratio (%)", min_value=0, value=None, placeholder="Enter utilization ratio")
+        payment_min_amount = st.selectbox("Payment of Min Amount", ["Select...", "Yes", "No"], index=0)
         
         st.subheader("Monthly Payments")
-        total_emi = st.number_input("Total EMI per month ($)", min_value=0, value=1000, step=50)
-        amount_invested = st.number_input("Amount Invested Monthly ($)", min_value=0, value=2000, step=100)
+        total_emi = st.number_input("Total EMI per month ($)", min_value=0, value=None, step=50, placeholder="Enter total EMI")
+        amount_invested = st.number_input("Amount Invested Monthly ($)", min_value=0, value=None, step=100, placeholder="Enter investment amount")
         
         st.subheader("Payment Pattern")
         payment_behaviour = st.selectbox("Payment Behaviour", 
-                                       ["Low_spent_Small_value_payments", "High_spent_Small_value_payments",
+                                       ["Select...", "Low_spent_Small_value_payments", "High_spent_Small_value_payments",
                                         "Low_spent_Medium_value_payments", "High_spent_Medium_value_payments",
-                                        "Low_spent_Large_value_payments", "High_spent_Large_value_payments"])
+                                        "Low_spent_Large_value_payments", "High_spent_Large_value_payments"], index=0)
         
-        delay_from_due_date = st.number_input("Delay from Due Date (days)", min_value=0, value=3)
+        delay_from_due_date = st.number_input("Delay from Due Date (days)", min_value=0, value=None, placeholder="Enter delay days")
     
     # Predict button
     if st.button("🎯 Predict Credit Score", type="primary", use_container_width=True):
-        try:
-            # Prepare input data
-            input_data = {
-                'Age': age,
-                'Occupation': occupation,
-                'Annual_Income': annual_income,
-                'Monthly_Inhand_Salary': monthly_salary,
-                'Num_Bank_Accounts': num_bank_accounts,
-                'Num_Credit_Card': num_credit_cards,
-                'Interest_Rate': interest_rate,
-                'Num_of_Loan': num_loans,
-                'Credit_Mix': credit_mix,
-                'Outstanding_Debt': outstanding_debt,
-                'Credit_Utilization_Ratio': credit_utilization,
-                'Payment_of_Min_Amount': payment_min_amount,
-                'Total_EMI_per_month': total_emi,
-                'Amount_invested_monthly': amount_invested,
-                'Payment_Behaviour': payment_behaviour,
-                'Monthly_Balance': monthly_balance,
-                'Delay_from_due_date': delay_from_due_date
-            }
-            
-            # Create DataFrame
-            input_df = pd.DataFrame([input_data])
-            
-            # Encode categorical variables
-            encoders = st.session_state.encoders
-            for col in ['Occupation', 'Credit_Mix', 'Payment_of_Min_Amount', 'Payment_Behaviour']:
-                if col in encoders:
-                    input_df[col] = encoders[col].transform(input_df[col])
-            
-            # Scale features
-            input_scaled = st.session_state.scaler.transform(input_df)
-            
-            # Make prediction
-            prediction = st.session_state.model.predict(input_scaled)[0]
-            prediction_proba = st.session_state.model.predict_proba(input_scaled)[0]
-            
-            # Decode prediction
-            target_col = st.session_state.target_column
-            credit_score = encoders[target_col].inverse_transform([prediction])[0]
-            
-            # Display results
-            st.markdown("---")
-            st.subheader("🎯 Prediction Results")
-            
-            col1, col2, col3 = st.columns(3)
-            
-            with col1:
-                if credit_score == 'Good':
-                    st.success(f"**Predicted_Credit_Score: {credit_score}** ✅")
-                elif credit_score == 'Standard':
-                    st.warning(f"**Predicted_Credit_Score: {credit_score}** ⚠️")
-                else:
-                    st.error(f"**Predicted_Credit_Score: {credit_score}** ❌")
-            
-            with col2:
-                confidence = max(prediction_proba) * 100
-                st.metric("Confidence", f"{confidence:.1f}%")
-            
-            with col3:
-                risk_level = "Low" if credit_score == 'Good' else "Medium" if credit_score == 'Standard' else "High"
-                st.metric("Risk Level", risk_level)
-            
-            # Probability chart
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                classes = encoders[target_col].classes_
-                prob_df = pd.DataFrame({
-                    'Credit Score': classes,
-                    'Probability': prediction_proba
-                })
+        # Check if all required fields are filled
+        required_fields = {
+            'Age': age,
+            'Occupation': occupation,
+            'Annual Income': annual_income,
+            'Monthly Salary': monthly_salary,
+            'Number of Bank Accounts': num_bank_accounts,
+            'Number of Credit Cards': num_credit_cards,
+            'Monthly Balance': monthly_balance,
+            'Interest Rate': interest_rate,
+            'Number of Loans': num_loans,
+            'Credit Mix': credit_mix,
+            'Outstanding Debt': outstanding_debt,
+            'Credit Utilization Ratio': credit_utilization,
+            'Payment of Min Amount': payment_min_amount,
+            'Total EMI per month': total_emi,
+            'Amount Invested Monthly': amount_invested,
+            'Payment Behaviour': payment_behaviour,
+            'Delay from Due Date': delay_from_due_date
+        }
+        
+        # Check for empty or "Select..." values
+        empty_fields = []
+        for field_name, field_value in required_fields.items():
+            if field_value is None or field_value == "Select...":
+                empty_fields.append(field_name)
+        
+        if empty_fields:
+            st.error(f"❌ Please fill in all required fields: {', '.join(empty_fields)}")
+        else:
+            try:
+                # Prepare input data
+                input_data = {
+                    'Age': age,
+                    'Occupation': occupation,
+                    'Annual_Income': annual_income,
+                    'Monthly_Inhand_Salary': monthly_salary,
+                    'Num_Bank_Accounts': num_bank_accounts,
+                    'Num_Credit_Card': num_credit_cards,
+                    'Interest_Rate': interest_rate,
+                    'Num_of_Loan': num_loans,
+                    'Credit_Mix': credit_mix,
+                    'Outstanding_Debt': outstanding_debt,
+                    'Credit_Utilization_Ratio': credit_utilization,
+                    'Payment_of_Min_Amount': payment_min_amount,
+                    'Total_EMI_per_month': total_emi,
+                    'Amount_invested_monthly': amount_invested,
+                    'Payment_Behaviour': payment_behaviour,
+                    'Monthly_Balance': monthly_balance,
+                    'Delay_from_due_date': delay_from_due_date
+                }
                 
-                fig = px.bar(prob_df, x='Credit Score', y='Probability', 
-                           title="Prediction Probabilities",
-                           color='Credit Score',
-                           color_discrete_map={'Good': 'green', 'Standard': 'orange', 'Poor': 'red'})
-                st.plotly_chart(fig, use_container_width=True)
-            
-            with col2:
-                # Recommendations
-                st.subheader("💡 Recommendations")
-                if credit_score == 'Good':
-                    st.write("✅ Excellent credit profile!")
-                    st.write("• Maintain current payment habits")
-                    st.write("• Consider increasing investments")
-                elif credit_score == 'Standard':
-                    st.write("⚠️ Room for improvement:")
-                    st.write("• Reduce credit utilization")
-                    st.write("• Pay bills on time")
-                    st.write("• Consider debt consolidation")
-                else:
-                    st.write("❌ Action needed:")
-                    st.write("• Reduce outstanding debt")
-                    st.write("• Improve payment consistency")
-                    st.write("• Seek financial counseling")
-            
-        except Exception as e:
-            st.error(f"❌ Error making prediction: {str(e)}")
-            st.error("Please check your input values and try again.")
+                # Create DataFrame
+                input_df = pd.DataFrame([input_data])
+                
+                # Encode categorical variables
+                encoders = st.session_state.encoders
+                for col in ['Occupation', 'Credit_Mix', 'Payment_of_Min_Amount', 'Payment_Behaviour']:
+                    if col in encoders:
+                        input_df[col] = encoders[col].transform(input_df[col])
+                
+                # Scale features
+                input_scaled = st.session_state.scaler.transform(input_df)
+                
+                # Make prediction
+                prediction = st.session_state.model.predict(input_scaled)[0]
+                prediction_proba = st.session_state.model.predict_proba(input_scaled)[0]
+                
+                # Decode prediction
+                target_col = st.session_state.target_column
+                credit_score = encoders[target_col].inverse_transform([prediction])[0]
+                
+                # Display results
+                st.markdown("---")
+                st.subheader("🎯 Prediction Results")
+                
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    if credit_score == 'Good':
+                        st.success(f"**Credit Score: {credit_score}** ✅")
+                    elif credit_score == 'Standard':
+                        st.warning(f"**Credit Score: {credit_score}** ⚠️")
+                    else:
+                        st.error(f"**Credit Score: {credit_score}** ❌")
+                
+                with col2:
+                    confidence = max(prediction_proba) * 100
+                    st.metric("Confidence", f"{confidence:.1f}%")
+                
+                with col3:
+                    risk_level = "Low" if credit_score == 'Good' else "Medium" if credit_score == 'Standard' else "High"
+                    st.metric("Risk Level", risk_level)
+                
+                # Probability chart
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    classes = encoders[target_col].classes_
+                    prob_df = pd.DataFrame({
+                        'Credit Score': classes,
+                        'Probability': prediction_proba
+                    })
+                    
+                    fig = px.bar(prob_df, x='Credit Score', y='Probability', 
+                               title="Prediction Probabilities",
+                               color='Credit Score',
+                               color_discrete_map={'Good': 'green', 'Standard': 'orange', 'Poor': 'red'})
+                    st.plotly_chart(fig, use_container_width=True)
+                
+                with col2:
+                    # Recommendations
+                    st.subheader("💡 Recommendations")
+                    if credit_score == 'Good':
+                        st.write("✅ Excellent credit profile!")
+                        st.write("• Maintain current payment habits")
+                        st.write("• Consider increasing investments")
+                    elif credit_score == 'Standard':
+                        st.write("⚠️ Room for improvement:")
+                        st.write("• Reduce credit utilization")
+                        st.write("• Pay bills on time")
+                        st.write("• Consider debt consolidation")
+                    else:
+                        st.write("❌ Action needed:")
+                        st.write("• Reduce outstanding debt")
+                        st.write("• Improve payment consistency")
+                        st.write("• Seek financial counseling")
+                
+            except Exception as e:
+                st.error(f"❌ Error making prediction: {str(e)}")
+                st.error("Please check your input values and try again.")
 
 else:
     st.warning("⚠️ Model not loaded. Please refresh the page.")
